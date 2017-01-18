@@ -2,13 +2,21 @@
   "name": "express_mocks",
   "version": "1.1.1",
   "main": "app.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AlexanderZhuravlov/nodelearn.git"
+  },
   "dependencies": {
     "body-parser": "^1.14.2",
     "errorhandler": "^1.4.3",
     "express": "^4.13.3",
-    "express-session": "^1.13.0"
+    "express-session": "^1.13.0",
+    "forever": "^0.15.3",
+    "forever-monitor": "^1.7.1"
   },
   "scripts": {
-    "start": "node app.js"
+    "start": "node app.js",
+    "start:forever": "forever -d -w -f start app.js",
+    "stop:forever": "forever stop app.js"
   }
 }
