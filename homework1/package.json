@@ -1,0 +1,19 @@
+{
+  "name": "http-server-by-alex",
+  "version": "0.1.1",
+  "description": "Simple HTTP Server",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AlexanderZhuravlov/http-server-by-alex.git"
+  },
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "homepage": "https://github.com/AlexanderZhuravlov/http-server-by-alex#readme",
+  "dependencies": {
+    "mime": "^1.3.4"
+  }
+}
