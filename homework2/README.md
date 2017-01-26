@@ -7,7 +7,7 @@
           
 or (with 'forever' module)
           
-     npm start:forever
+     npm run start:forever
 
 ## Changes
 1) Added simple GET requests such as - 
