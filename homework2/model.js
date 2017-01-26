@@ -1,6 +1,11 @@
 const path = require('path');
 const fs = require('fs');
 
+
+function getPath() {
+    
+}
+
 function walkOnDir(dir, fileType, done) {
     let results = [];
     fs.readdir(dir, function(err, list) {
@@ -66,6 +71,77 @@ function getPost(filePath) {
     });
 }
 
+function deleteFile(dir, file) {
+    return new Promise(function (resolve, reject) {
+        let filePath = path.join(dir, file);
+        fs.lstat(filePath, function (err, stats) {
+            if (err) {
+                return reject(err);
+            }
+            if (stats.isDirectory()) {
+                resolve(deleteDirectory(filePath));
+            } else {
+                fs.unlink(filePath, function (err) {
+                    if (err) {
+                        return reject(err);
+                    }
+                    resolve();
+                });
+            }
+        });
+    });
+}
+
+function deleteDirectory(dir) {
+    return new Promise(function (resolve, reject) {
+        fs.access(dir, function (err) {
+            if (err) {
+                return reject({"status": "fail"});
+            }
+            fs.readdir(dir, function (err, files) {
+                if (err) {
+                    return reject(err);
+                }
+                Promise.all(files.map(function (file) {
+                    return deleteFile(dir, file);
+                })).then(function () {
+                    fs.rmdir(dir, function (err) {
+                        if (err) {
+                            return reject(err);
+                        }
+                        resolve({"status": "success"});
+                    });
+                }).catch(reject);
+            });
+        });
+    });
+}
+
+function addDir(dirPath) {
+    return new Promise(function(resolve,reject){
+        fs.access(dirPath, function (err) {
+            if (err) {
+                fs.mkdir(dirPath, function (err) {
+                    if (err) {
+                        return reject({status: 'fail', message: err});
+                    }
+                    resolve(dirPath);
+                });
+            }
+            else return reject({status: 'fail', message: 'dir exists'});
+        });
+    });
+}
+
+function addFile(dirPath, content) {
+    return new Promise(function(resolve,reject){
+        fs.writeFile(dirPath + '/get.json', JSON.stringify([content]), function(err){
+            if (err) return reject({status: 'fail', message: err});
+            resolve({status: 'success'});
+        });
+    });
+}
+
 module.exports = {
     getContent: function (type, entityId = false) {
         return new Promise(function(resolve,reject){
@@ -79,6 +155,19 @@ module.exports = {
                 filePath = path.join(__dirname, filePath);
                 getPost(filePath).then(data => resolve(data)).catch(error => reject(error));
             }
+        });
+    },
+    deleteContent: function (type, entityId) {
+        return new Promise(function(resolve,reject){
+            let dirPath = 'api/'+type+'/'+entityId+'/';
+            dirPath = path.join(__dirname, dirPath);
+            deleteDirectory(dirPath).then(result => resolve(result)).catch(error => reject(error));
+        });
+    },
+    addContent: function (type, content) {
+        return new Promise(function(resolve,reject){
+            let dirPath = 'api/'+type+'/'+content.postId+'/';
+            addDir(dirPath).then(dir => { return addFile(dir, content)}).then(result => {resolve(result)}).catch(error => reject(error));
         });
     }
 };
