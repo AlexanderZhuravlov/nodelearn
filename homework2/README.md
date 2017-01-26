@@ -28,4 +28,8 @@ DELETE http://localhost:3333/api/1.2.0/users/001 - remove folder /001 into users
 
 3) Added simple POST request such as - 
 
-POST http://localhost:3333/api/1.2.0/posts/003 - added folder /003 (if it's not exist) and file get.json into it
+POST http://localhost:3333/api/1.2.0/posts - added folder /003 (if it's not exist) and file get.json into it
+
+4) Added PUT and POST request to update data such as - 
+
+PUT http://localhost:3333/api/1.2.0/posts/001 - replace data into file (if file and/or folder exists) 

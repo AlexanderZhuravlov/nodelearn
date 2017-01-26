@@ -43,14 +43,23 @@ app.route('/api/:apiVersion/posts/:postId/')
         model.getContent('posts', req.params.postId).then(data => res.json(data)).catch(error => res.status(400).json(error));
     })
     .post(function (req, res) {
-
-        res.json(req.body);
+        if(schema.validatePost(req.body)){
+            model.replaceContent('posts', req.params.postId, req.body).then(data => res.json(data)).catch(error => res.status(409).json(error));
+        }
+        else{
+            res.status(409).json({status: 'fail', message: 'Request JSON data is invalid'});
+        }
     })
     .delete(function (req, res) {
         model.deleteContent('posts', req.params.postId).then(data => res.json(data)).catch(error => res.status(400).json(error));
     })
     .put(function (req, res) {
-        res.send(req.params)
+        if(schema.validatePost(req.body)){
+            model.replaceContent('posts', req.params.postId, req.body).then(data => res.json(data)).catch(error => res.status(409).json(error));
+        }
+        else{
+            res.status(409).json({status: 'fail', message: 'Request JSON data is invalid'});
+        }
     });
 
 /* USERS Routes */
@@ -71,13 +80,23 @@ app.route('/api/:apiVersion/users/:postId/')
         model.getContent('users', req.params.postId).then(data => res.json(data)).catch(error => res.status(400).json(error));
     })
     .post(function (req, res) {
-        res.send(req.params)
+        if(schema.validatePost(req.body)){
+            model.replaceContent('users', req.params.postId, req.body).then(data => res.json(data)).catch(error => res.status(409).json(error));
+        }
+        else{
+            res.status(409).json({status: 'fail', message: 'Request JSON data is invalid'});
+        }
     })
     .delete(function (req, res) {
         model.deleteContent('users', req.params.postId).then(data => res.json(data)).catch(error => res.status(400).json(error));
     })
     .put(function (req, res) {
-        res.send(req.params)
+        if(schema.validatePost(req.body)){
+            model.replaceContent('users', req.params.postId, req.body).then(data => res.json(data)).catch(error => res.status(409).json(error));
+        }
+        else{
+            res.status(409).json({status: 'fail', message: 'Request JSON data is invalid'});
+        }
     });
 
 /* Default Not Found Route */

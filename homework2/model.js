@@ -1,11 +1,6 @@
 const path = require('path');
 const fs = require('fs');
 
-
-function getPath() {
-    
-}
-
 function walkOnDir(dir, fileType, done) {
     let results = [];
     fs.readdir(dir, function(err, list) {
@@ -142,6 +137,31 @@ function addFile(dirPath, content) {
     });
 }
 
+function checkFile(dirPath) {
+    return new Promise(function(resolve,reject){
+        fs.access(dirPath, function (err) {
+            if (err) {
+                return reject({status: 'fail', message: 'dir does not exists'});
+            }
+            fs.stat(dirPath+'get.json', function (err) {
+                if (err) {
+                    return reject({status: 'fail', message: 'file does not exists'});
+                }
+                resolve(dirPath+'get.json');
+            });
+        });
+    });
+}
+
+function replaceFile(path, content) {
+    return new Promise(function(resolve,reject){
+        fs.writeFile(path, JSON.stringify([content]), 'utf8', function (err) {
+            if (err) reject({status: 'fail', message: err});
+            resolve({status: 'success'});
+        });
+    });
+}
+
 module.exports = {
     getContent: function (type, entityId = false) {
         return new Promise(function(resolve,reject){
@@ -167,7 +187,19 @@ module.exports = {
     addContent: function (type, content) {
         return new Promise(function(resolve,reject){
             let dirPath = 'api/'+type+'/'+content.postId+'/';
-            addDir(dirPath).then(dir => { return addFile(dir, content)}).then(result => {resolve(result)}).catch(error => reject(error));
+            addDir(dirPath)
+                .then(dir => { return addFile(dir, content)})
+                .then(result => resolve(result))
+                .catch(error => reject(error));
+        });
+    },
+    replaceContent: function (type, entityId, content) {
+        return new Promise(function(resolve,reject){
+            let dirPath = 'api/'+type+'/'+entityId+'/';
+            checkFile(dirPath)
+                .then(path => { return replaceFile(path, content)})
+                .then(result => resolve(result))
+                .catch(error => reject(error));
         });
     }
 };

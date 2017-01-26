@@ -17,7 +17,7 @@
   },
   "scripts": {
     "start": "node app.js",
-    "start:forever": "forever -d -w -f start app.js",
+    "start:forever": "forever -d -w -f start app.js | node app.js",
     "stop:forever": "forever stop app.js"
   }
 }
