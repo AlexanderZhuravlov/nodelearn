@@ -1,7 +1,6 @@
 module.exports = {
   uploadDestination: 'uploads-default/',
-  filesListPath: './filesList',
-  filesRecordSplitter: '\n',
+  filesListPath: './filesList.json',
   username: 'qwe',
   password: 'securepass'
 };
