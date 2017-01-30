@@ -23,7 +23,7 @@ function postFileToCloud(filePath, username, password) {
       .post(uploadUrl)
       .auth(username, password)
       .type('form')
-      .on('progress', function(e) {
+      .on('progress', e => {
         let percentDone = Math.floor((e.loaded / e.total) * 100);
         bar.update(percentDone / 100);
       })

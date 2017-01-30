@@ -12,7 +12,7 @@ const PASSWORD_MIN_LENGTH = 6;
 command
   .arguments('<file>')
   .option('-u, --username <username>', 'Enter username:')
-  .action(function(file) {
+  .action(file => {
     co(function*() {
       let password = yield promptly.prompt('Enter password:', {validator: validator, silent: true});
       yield cloud.upload(file, command.username, password);
