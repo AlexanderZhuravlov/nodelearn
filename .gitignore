@@ -18,6 +18,4 @@ jspm_packages
 
 # IDE
 .idea/
-
-# Additional folders into projects
 /homework3/storage/
