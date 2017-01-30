@@ -1,14 +1,14 @@
 require('../../bin/www');
-var app = require('../../app');
-var request = require('supertest');
-var debug = require('debug')('test');
-var requestInstance = request(app);
+const app = require('../../app');
+const request = require('supertest');
+const debug = require('debug')('test');
+const requestInstance = request(app);
 
-before(function() {
+before(() => {
   debug('>>>>>>>>>>>>>Global setup<<<<<<<<<<<<<<<<<<<<<<<');
 });
 
-after(function() {
+after(() => {
   debug('>>>>>>>>>>>>>Global teardown<<<<<<<<<<<<<<<<<<<<<<<');
 });
 
