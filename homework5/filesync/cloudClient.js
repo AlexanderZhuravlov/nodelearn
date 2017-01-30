@@ -4,6 +4,7 @@ const fs = Promise.promisifyAll(require('fs'));
 const path = require('path');
 const agent = require('superagent');
 const progressBar = require('progress-bar');
+const co = require('co');
 
 const CLOUD_URL = 'localhost:3000/upload';
 
@@ -12,23 +13,26 @@ module.exports = {
 };
 
 function postFileToCloud(filePath, username, password) {
-  return fs.statAsync(filePath)
-    .then(stats => {
-      console.log('Trying to sync file', filePath, 'with size', stats.size);
-      let bar = progressBar.create(process.stdout);
-      let fileStream = fs.createReadStream(filePath);
-      let uploadUrl = generateUploadUrl(filePath);
-      return agent
-        .post(uploadUrl)
-        .auth(username, password)
-        .type('form')
-        .on('progress', function(e) {
-          let percentDone = Math.floor((e.loaded / e.total) * 100);
-          bar.update(percentDone / 100);
-        })
-        .attach('syncfile', fileStream)
-        .set('Accept', 'application/json');
-    });
+  return co(function*() {
+    let stats = yield fs.statAsync(filePath);
+    console.log('Trying to sync file', filePath, 'with size', stats.size);
+    let bar = progressBar.create(process.stdout);
+    let fileStream = fs.createReadStream(filePath);
+    let uploadUrl = generateUploadUrl(filePath);
+    return agent
+      .post(uploadUrl)
+      .auth(username, password)
+      .type('form')
+      .on('progress', function(e) {
+        let percentDone = Math.floor((e.loaded / e.total) * 100);
+        bar.update(percentDone / 100);
+      })
+      .attach('syncfile', fileStream)
+      .set('Accept', 'application/json');
+  })
+  .catch(function(err) {
+    console.error(err.stack);
+  });
 }
 
 function generateUploadUrl(filePath) {
