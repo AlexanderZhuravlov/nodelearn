@@ -42,35 +42,21 @@ describe('Upload unit', function() {
       .then(result => {
         return Promise.reject('Got success result' + result);
       })
-      .catch(function(err) {
+      .catch(err => {
         return expect(err.message.includes(NO_FILE_ERROR_PART)).to.equal(true);
       });
   });
 
-  var PostStub = function() {
+  let PostStub = () => {
     ['auth', 'type', 'on', 'attach']
       .map(method => this[method] = () => this);
     this.set = () => STUB_SERVER_RESPONSE;
   };
 
-  // // ES5 version
-  // var PostStub = function() {
-  //   var self = this;
-  //   ['auth', 'type', 'on', 'attach']
-  //     .map(function(method) {
-  //       self[method] = function() {
-  //         return self;
-  //       };
-  //     });
-  //   this.set = function() {
-  //     return STUB_SERVER_RESPONSE;
-  //   };
-  // };
-
   it('should return result of the cloud response', function() {
     postRequest.returns(new PostStub());
     return cloud.upload(VALID_FILE_PATH, VALID_USER, VALID_PASSWORD)
-      .then(function(result) {
+      .then(result => {
         return Promise.all([
           expect(result).to.equal(STUB_SERVER_RESPONSE),
           expect(console.log).to.be.calledWith(
@@ -79,6 +65,5 @@ describe('Upload unit', function() {
         ]);
       });
   });
-
 
 });
