@@ -18,4 +18,9 @@ jspm_packages
 
 # IDE
 .idea/
-/homework3/storage/
+
+#Another projects tmp folders
+*/storage/
+*/cloud/filesList
+*/cloud/uploads-development
+*/cloud/uploads-test
