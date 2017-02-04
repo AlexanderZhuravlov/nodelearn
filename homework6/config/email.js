@@ -1,0 +1,6 @@
+/**
+ * Email config
+ */
+module.exports = {
+
+};
