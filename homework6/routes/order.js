@@ -4,22 +4,23 @@
 const express = require('express');
 const router = express.Router();
 const util = require('util');
-const nodemailer = require('nodemailer');
 const errors = require('../config/errors');
 const products = require('../config/products');
 const text = require('../config/text');
+const configEmail = require('../config/email');
 const helper = require('../helpers/general');
+const senderEmail = require('../helpers/email');
 
 /**
  * POST orders.
  */
 router.post('/', function(req, res, next) {
   // Validate request params
-  req.checkBody('fname', 'Invalid First Name').notEmpty().withMessage('First Name is required').isAlpha();
-  req.checkBody('lname', 'Invalid Last Name').notEmpty().withMessage('Last Name is required').isAlpha();
-  req.checkBody('phone', 'Invalid Phone').notEmpty().withMessage('Phone is required').isInt();
-  req.checkBody('email', 'Invalid Email').notEmpty().withMessage('Email is required').isEmail();
-  req.checkBody('product', 'Invalid Product').notEmpty().withMessage('Product is required').isIn(products.productsArray);
+  req.checkBody('fname', 'First Name should be a string').notEmpty().withMessage('First Name is required').isAlpha();
+  req.checkBody('lname', 'Last Name should be a string').notEmpty().withMessage('Last Name is required').isAlpha();
+  req.checkBody('phone', 'Phone should be a number').notEmpty().withMessage('Phone is required').isInt();
+  req.checkBody('email', 'Email should be a valid email').notEmpty().withMessage('Email is required').isEmail();
+  req.checkBody('product', 'Product should be specified').notEmpty().withMessage('Product is required').isIn(products.productsArray);
 
   req.getValidationResult()
     .then(result => {
@@ -35,22 +36,34 @@ router.post('/', function(req, res, next) {
       });
     })
     .then(() => {
-      // Send email
       return new Promise(function (resolve, reject) {
+        let orderInfo = req.body;
+        orderInfo.ID = helper.getRandomInt(1,9999);
+        orderInfo.date = new Date();
 
-        console.log(req.body);
+        // Create transport
+        const transport = senderEmail.createTransport();
 
-        // reject(['Email can not be sent'])
+        let managerEmail = senderEmail.sendEmail(configEmail.managerType, transport, orderInfo);
+        let clientEmail = senderEmail.sendEmail(configEmail.clientType, transport, orderInfo);
 
-        resolve();
+        Promise.all([managerEmail,clientEmail])
+          .then(result => {
+            resolve(result);
+          })
+          .catch(error => {
+            reject(errors.emailError);
+          });
       });
     })
-    .then(() =>{
+    .then(result => {
       // Render success page
-      res.render('orders/success', { title: text.orderPageTitle, orderID: helper.getRandomInt(1,9999) });
+      console.log(result);
+      res.render('orders/success', { title: text.orderPageTitle, orderID: orderInfo.ID });
     })
     .catch(messages => {
       // Render error page
+      console.error(messages);
       res.render('orders/error', { title: text.orderPageTitle, errors: messages });
     });
 });
