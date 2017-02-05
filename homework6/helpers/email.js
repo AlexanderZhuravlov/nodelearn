@@ -3,6 +3,7 @@
  */
 const nodemailer = require('nodemailer');
 const ejs = require('ejs');
+const co = require('co');
 const email = require('../config/email');
 
 function createTransport() {
@@ -13,6 +14,33 @@ function createTransport() {
       pass: email.password
     }
   });
+}
+
+function prepareEmailData(type, orderInfo) {
+  let object = {};
+  if(type == email.managerType){
+    object.emailTo = email.managerEmail;
+    object.subject = `Order ${orderInfo.ID}. ${orderInfo.fname} ${orderInfo.lname}`;
+    object.data = {
+      firstname: orderInfo.fname,
+      lastname: orderInfo.lname,
+      phone: orderInfo.phone,
+      email: orderInfo.email,
+      product: orderInfo.product,
+      orderID: orderInfo.ID,
+      date: orderInfo.date
+    }
+  }
+  else{
+    object.emailTo = orderInfo.email;
+    object.subject = `Your order ${orderInfo.ID} accepted`;
+    object.data = {
+      product: orderInfo.product,
+      orderID: orderInfo.ID,
+      date: orderInfo.date
+    }
+  }
+  return object;
 }
 
 function getEmailHTML(template, data) {
@@ -38,33 +66,13 @@ function sendingMail(transport, mailOptions) {
 }
 
 function sendEmail(type, transport, orderInfo){
-  let emailTo, data, subject;
-  if(type == email.managerType){
-    emailTo = email.managerEmail;
-    subject = `Order ${orderInfo.ID}. ${orderInfo.fname} ${orderInfo.lname}`;
-    data = {
-      firstname: orderInfo.fname,
-      lastname: orderInfo.lname,
-      phone: orderInfo.phone,
-      email: orderInfo.email,
-      product: orderInfo.product,
-      orderID: orderInfo.ID,
-      date: orderInfo.date
-    }
-  }
-  else{
-    emailTo = orderInfo.email;
-    subject = `Your order ${orderInfo.ID} accepted`;
-    data = {
-      product: orderInfo.product,
-      orderID: orderInfo.ID,
-      date: orderInfo.date
-    }
-  }
+  let {emailTo, data, subject} = prepareEmailData(type, orderInfo);
 
-  return getEmailHTML(type.template, data)
-  .then( html => {
+  co(function*() {
+    // Get email html
+    let html = yield getEmailHTML(type.template, data);
 
+    // Prepare email options
     const mailOptions = {
       from: email.user,
       to: emailTo,
@@ -72,10 +80,14 @@ function sendEmail(type, transport, orderInfo){
       html: html
     };
 
-    return sendingMail(transport, mailOptions).then(result => { return result });
+    // Sending email
+    return yield sendingMail(transport, mailOptions);
   })
-  .then(result => { return result })
-  .catch(error => { return error });
+  .catch(err => {
+
+    console.error(err);
+    return err;
+  });
 }
 
 module.exports = {
