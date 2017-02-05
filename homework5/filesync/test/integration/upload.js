@@ -14,7 +14,6 @@ const NO_FILE_ERROR_PART = 'ENOENT: no such file or directory';
 
 describe('Upload', function() {
 
-
   it('should ask a password', function(done) {
     const command = spawn(
       'filesync', ['-u', VALID_USER, VALID_FILE_PATH],
@@ -28,7 +27,6 @@ describe('Upload', function() {
       done();
     });
   });
-
 
   it('should give error on short password', function(done) {
     const command = spawn('filesync', ['-u', VALID_USER, VALID_FILE_PATH], { capture: [ 'stdout', 'stderr' ]});
@@ -47,7 +45,6 @@ describe('Upload', function() {
     });
   });
 
-
   it('should give error if file not found', function(done) {
     const command = spawn('filesync', ['-u', VALID_USER, INVALID_FILE_PATH], { capture: [ 'stdout', 'stderr' ]})
       .catch(err => {
@@ -60,7 +57,6 @@ describe('Upload', function() {
       childProcess.stdout.removeListener('data', handler);
     });
   });
-
 
   it('should give error if server is down', function(done) {
     const command = spawn('filesync', ['-u', VALID_USER, VALID_FILE_PATH], { capture: [ 'stdout', 'stderr' ]});
@@ -78,7 +74,5 @@ describe('Upload', function() {
       done();
     });
   });
-
-//TO-DO: add more tests
 
 });

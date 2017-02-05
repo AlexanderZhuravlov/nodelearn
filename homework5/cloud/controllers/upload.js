@@ -1,16 +1,17 @@
-var multer  = require('multer');
-var fs = require('fs');
-var config = require('config');
-var log = require('../log');
+const multer  = require('multer');
+const fs = require('fs');
+const config = require('config');
+const log = require('../log');
+const co = require('co');
 
-var uploadMiddleware = multer({
+const uploadMiddleware = multer({
   dest: config.uploadDestination,
   fileFilter: fileFilter
 });
 
-var FILES_LIST_PATH = config.filesListPath;
-var FILERECORDSPLITTER = config.filesRecordSplitter;
-var filesList = [];
+const FILES_LIST_PATH = config.filesListPath;
+const FILERECORDSPLITTER = config.filesRecordSplitter;
+let filesList = [];
 
 try {
   filesList = fs
@@ -23,7 +24,7 @@ try {
 }
 
 function fileFilter(req, file, cb) {
-  var filePath = req.query.filePath;
+  let filePath = req.query.filePath;
   if (filesList.includes(filePath)) {
     cb(null, false);
   } else {
@@ -35,9 +36,9 @@ function fileFilter(req, file, cb) {
 
 function validateRequest() {
   return function(req, res, next) {
-    var filePath = req.query.filePath;
+    let filePath = req.query.filePath;
     if (!filePath) {
-      var err = new Error('Validation error: filePath parameter is missing');
+      let err = new Error('Validation error: filePath parameter is missing');
       err.code = 400;
       return next(err);
     }
@@ -48,7 +49,7 @@ function validateRequest() {
 function saveToFileList(filePath, cb) {
   try {
     filesList.push(filePath);
-    var fileRecord = filePath + FILERECORDSPLITTER;
+    let fileRecord = filePath + FILERECORDSPLITTER;
     fs.appendFileSync(FILES_LIST_PATH, fileRecord);
   } catch (err) {
     return cb(err);
