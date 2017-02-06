@@ -6,6 +6,19 @@
   </head>
   <body>
     <h1><%= title %></h1>
-    <p>Welcome to <%= title %></p>
+    <form action="/order/" method="post">
+      First name*: <input type="text" name="fname"><br>
+      Last name*: <input type="text" name="lname"><br>
+      Phone*: <input type="tel" name="phone"><br>
+      Email*: <input type="email" name="email"><br>
+      Product*: <select name="product">
+                  <% for(var i=0; i<products.length; i++) {
+                    var productName = products[i].toUpperCase();
+                    %>
+                    <option value="<%= products[i] %>"><%= productName %></option>
+                  <% } %>
+                </select><br>
+      <input type="submit" value="Submit">
+    </form>
   </body>
 </html>
